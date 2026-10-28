@@ -205,11 +205,20 @@
       }
     }
 
+    function isValidEmail(email) {
+      // 基本格式：本地端@網域.後綴（避免空白與明顯錯誤）
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
     async function bind() {
       setMessage("");
       const email = (emailInput.value || "").trim();
       if (!email) {
         setMessage("請輸入 Email。", "err");
+        return;
+      }
+      if (!isValidEmail(email)) {
+        setMessage("Email 格式不正確，請再檢查一次。", "err");
         return;
       }
       if (!lineUserId) {
