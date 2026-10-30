@@ -89,13 +89,13 @@
 <body>
   <div class="card">
     <h1 id="title">綁定 LINE 通知</h1>
-    <p class="sub" id="subText">請填寫 Email。若已在 App 申請過會綁到原資料；尚未申請則會先建立一筆並綁定 LINE。</p>
+    <p class="sub" id="subText">請填寫手機號碼。若已在 App 申請過會綁到原資料；尚未申請則會先建立一筆並綁定 LINE。</p>
 
     <div class="meta" id="statusLine">正在連接 LINE…</div>
 
     <div id="bindForm">
-      <label for="email">Email</label>
-      <input id="email" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com" />
+      <label for="phone">手機號碼</label>
+      <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0912345678" />
       <button id="submitBtn" type="button" disabled>確認綁定</button>
     </div>
 
@@ -109,7 +109,7 @@
     const SECRET_TOKEN = "oshare-reg-2026-k9m2x7";
 
     const statusLine = document.getElementById("statusLine");
-    const emailInput = document.getElementById("email");
+    const phoneInput = document.getElementById("phone");
     const submitBtn = document.getElementById("submitBtn");
     const messageEl = document.getElementById("message");
     const bindForm = document.getElementById("bindForm");
@@ -124,11 +124,21 @@
       messageEl.className = "msg" + (type ? " " + type : "");
     }
 
-    function showAlreadyBound(email) {
+    function normalizePhone(phone) {
+      return String(phone || "").replace(/\D/g, "");
+    }
+
+    function isValidPhone(phone) {
+      const digits = normalizePhone(phone);
+      // 台灣常見：09 開頭 10 碼；也接受 08/07 等 9～10 碼數字
+      return /^09\d{8}$/.test(digits) || /^\d{9,10}$/.test(digits);
+    }
+
+    function showAlreadyBound(phone) {
       titleEl.textContent = "已綁定";
       subText.textContent = "此 LINE 已完成綁定，審核通過後可用 LINE 通知您。";
       bindForm.classList.add("hidden");
-      statusLine.textContent = email ? ("Email：" + email) : "已綁定完成";
+      statusLine.textContent = phone ? ("手機：" + phone) : "已綁定完成";
       setMessage("狀態：已綁定", "ok");
       closeBtn.classList.remove("hidden");
     }
@@ -136,7 +146,7 @@
     function showBindSuccess(created) {
       titleEl.textContent = "綁定成功";
       subText.textContent = created
-        ? "已建立資料並綁定。請再至 App 用同一 Email 完成註冊申請。"
+        ? "已建立資料並綁定。請再至 App 用同一手機號碼完成註冊申請。"
         : "綁定完成，審核通過後可用 LINE 通知您。";
       bindForm.classList.add("hidden");
       setMessage("", "");
@@ -169,7 +179,7 @@
         lineUserId: lineUserId,
       });
       if (data.ok && data.bound) {
-        showAlreadyBound(data.email || "");
+        showAlreadyBound(data.phone || "");
         return true;
       }
       return false;
@@ -205,20 +215,15 @@
       }
     }
 
-    function isValidEmail(email) {
-      // 基本格式：本地端@網域.後綴（避免空白與明顯錯誤）
-      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    }
-
     async function bind() {
       setMessage("");
-      const email = (emailInput.value || "").trim();
-      if (!email) {
-        setMessage("請輸入 Email。", "err");
+      const phone = (phoneInput.value || "").trim();
+      if (!phone) {
+        setMessage("請輸入手機號碼。", "err");
         return;
       }
-      if (!isValidEmail(email)) {
-        setMessage("Email 格式不正確，請再檢查一次。", "err");
+      if (!isValidPhone(phone)) {
+        setMessage("手機號碼格式不正確，請輸入如 0912345678。", "err");
         return;
       }
       if (!lineUserId) {
@@ -233,7 +238,7 @@
         const data = await postAction({
           action: "bindLine",
           token: SECRET_TOKEN,
-          email: email,
+          phone: normalizePhone(phone),
           lineUserId: lineUserId,
         });
 
