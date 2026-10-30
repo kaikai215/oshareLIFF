@@ -89,7 +89,7 @@
 <body>
   <div class="card">
     <h1 id="title">綁定 LINE 通知</h1>
-    <p class="sub" id="subText">請填寫手機號碼。若已在 App 申請過會綁到原資料；尚未申請則會先建立一筆並綁定 LINE。</p>
+    <p class="sub" id="subText">請填寫手機號碼。</p>
 
     <div class="meta" id="statusLine">正在連接 LINE…</div>
 
@@ -136,7 +136,7 @@
 
     function showAlreadyBound(phone) {
       titleEl.textContent = "已綁定";
-      subText.textContent = "此 LINE 已完成綁定，審核通過後可用 LINE 通知您。";
+      subText.textContent = "此 LINE 已完成綁定。";
       bindForm.classList.add("hidden");
       statusLine.textContent = phone ? ("手機：" + phone) : "已綁定完成";
       setMessage("狀態：已綁定", "ok");
@@ -146,8 +146,8 @@
     function showBindSuccess(created) {
       titleEl.textContent = "綁定成功";
       subText.textContent = created
-        ? "已建立資料並綁定。請再至 App 用同一手機號碼完成註冊申請。"
-        : "綁定完成，審核通過後可用 LINE 通知您。";
+        ? "已建立資料並綁定。"
+        : "綁定完成。";
       bindForm.classList.add("hidden");
       setMessage("", "");
       closeBtn.classList.remove("hidden");
@@ -167,7 +167,7 @@
       try {
         return JSON.parse(text);
       } catch (_) {
-        throw new Error("伺服器回應異常，請確認 Apps Script 已部署最新版本。");
+        throw new Error("伺服器回應異常");
       }
     }
 
